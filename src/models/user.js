@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 // User Schema
 const userSchema = new mongoose.Schema({
@@ -52,6 +54,29 @@ const userSchema = new mongoose.Schema({
 //This will create two fields in the document createdAt and updatedAt);
 {timestamps: true}
 );
+
+
+//Schema Methods
+
+//Helper method to get the JWT token for each user while logging in
+userSchema.methods.getJWT = async function() {
+
+    //"this" keyword will not work with arrow functions; So, we are using normal function here
+    const user = this;
+    const token = await jwt.sign(
+        {_id: this._id}, "Linkr@9080",
+        {expiresIn: "1d"}
+    );
+
+    return token;
+}
+
+userSchema.methods.validatePassword = async function(passwordInputByUser) {
+    const passwordHash = user.password;
+    const isPasswordValid =  await bcrypt.compare(passwordInputByUser, passwordHash);
+
+    return isPasswordValid;
+}
 
 // User Model | Here 'User' is the name of the model
 module.exports = mongoose.model("User", userSchema);

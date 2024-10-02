@@ -3,12 +3,18 @@ const connectDB = require("./config/database");
 const app = express();
 const User = require("./models/user");
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const {validateSignUpData} = require("./utils/validation");
+const {userAuth} = require("./middlewares/auth");
 
 //API Examples for CRUD operations (Basic and important operations in any application) 
 
 //Middleware to convert JSON data to JavaScript object
 app.use(express.json());
+
+//Middleware to parse the cookies
+app.use(cookieParser());
 
 //Create a new user
 app.post("/signup" , async(req,res) => {
@@ -49,10 +55,17 @@ app.post("/login", async(req,res) => {
             throw new Error("Invalid credentials");
         }
 
-        //returns true if the password is valid
-        const isPasswordValid = await bcrypt.compare(password, user.password);
+        //returns true if the password is valid ( With the help of helper function in the userSchema)
+        const isPasswordValid = await user.validatePassword(password);
 
         if(isPasswordValid){
+            //creates a JWT token with the help of the helper function in the userSchema
+            const token = await user.getJWT();
+
+            //Add the token to cookie and send the response back to the user
+            res.cookie("token", token, {
+                expires: new Date(Date.now() + 3600000),
+            });
             res.send("User logged in successfully");
         }
         else{
@@ -63,6 +76,18 @@ app.post("/login", async(req,res) => {
         res.status(400).send("ERROR: " + err.message);
     }
 })
+
+//Profile of the user
+app.get("/profile", userAuth, async(req,res) => {
+    try{
+        //userAuth middleware will add the user object to the request object after validating the token for the user
+        const user = req.user;
+        res.send(user);
+    }
+    catch(err){
+        res.status(400).send("ERROR: " + err.message);
+    }
+});
 
 //Get user by emailId
 app.get("/user", async(req,res) => {
