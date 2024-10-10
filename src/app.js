@@ -1,7 +1,6 @@
 const express = require("express");
 const connectDB = require("./config/database");
 const app = express();
-
 const cookieParser = require("cookie-parser");
 
 //Middleware to convert JSON data to JavaScript object
@@ -15,7 +14,7 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 
 app.use("/", authRouter);
-app.use("/ ", profileRouter);
+app.use("/", profileRouter);
 app.use("/", requestRouter);
 
 //Connect to Database first before starting the server [IMPORTANT]

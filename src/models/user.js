@@ -38,14 +38,19 @@ const userSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
-
+        enum: {
+            values: ["male","female","others"],
+            message: `{VALUE} is not a valid gender`,
+        },
         //We can use Validate property to customize the validations for the fields
         // This will only run when we create a new document and not when we update the existing document unless we specify the runValidators option in API
-        validate(value){
-            if(!["male","female","others"].includes(value)){
-                throw new Error("Gender is invalid");
-            }
-        },
+        // Now we are using enum property to validate, so we don't need this
+        
+        // validate(value){
+        //     if(!["male","female","others"].includes(value)){
+        //         throw new Error("Gender is invalid");
+        //     }
+        // },
     },
     photoUrl: {
         type: String,
@@ -85,7 +90,7 @@ userSchema.methods.getJWT = async function() {
 }
 
 userSchema.methods.validatePassword = async function(passwordInputByUser) {
-    const passwordHash = user.password;
+    const passwordHash = this.password;
     const isPasswordValid =  await bcrypt.compare(passwordInputByUser, passwordHash);
 
     return isPasswordValid;
