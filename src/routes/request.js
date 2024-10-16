@@ -5,7 +5,7 @@ const {userAuth} = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
 
-//Dynamic Request API for ignored and interested status
+//Dynamic Request API for ignore and interest status
 requestRouter.post("/request/send/:status/:toUserId",userAuth, async(req,res) => {
 
     try{
@@ -58,5 +58,46 @@ requestRouter.post("/request/send/:status/:toUserId",userAuth, async(req,res) =>
         res.status(400).send("ERROR: " + err.message);
     }
 });
+
+//Dynamic Request API for accept and reject status
+requestRouter.post("/request/review/:status/:requestId",userAuth, async(req,res) => {
+    try{
+        const loggedInUser = req.user;
+        const status = req.params.status;
+        const requestId = req.params.requestId;
+        
+        //To check if the status is valid
+        const allowedStatus = ["accepted","rejected"];
+        if(!allowedStatus.includes(status)){
+            return res.status(400).json({
+                message: "Invalid status type: " + status,
+            })
+        }
+
+        //Check if the connection request is present in the database
+        const connectionRequest = await ConnectionRequest.findOne({
+            _id: requestId,
+            toUserId: loggedInUser._id,
+            status: "interested",
+        });
+        if(!connectionRequest){
+            return res.status(400).json({
+                message: "Connection request not found",
+            });
+        }
+
+        connectionRequest.status = status;
+        const data = await connectionRequest.save();
+
+        res.json({
+            message: "Connection request has been " + status,
+            data,
+        });
+
+    }
+    catch(err){
+        res.status(400).send("ERROR: " + err.message);
+    }
+})
 
 module.exports = requestRouter;

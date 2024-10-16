@@ -4,16 +4,18 @@ const connectionRequestSchema = new mongoose.Schema(
     {
         fromUserId: {
             type: mongoose.Schema.Types.ObjectId,
+            ref: "User", //This is used to reference the User model
             required: true,
         },
         toUserId: {
             type: mongoose.Schema.Types.ObjectId,
+            ref: "User", //This is used to reference the User model
             required: true,
         },
         status: {
             type: String,
             // enum is used to restrict the values that a particular field can take
-            enum: ["ignored", "interested", "accpeted", "rejected"],
+            enum: ["ignored", "interested", "accepted", "rejected"],
             message: `{VALUE} is not a valid status`,
             required: true,
         },

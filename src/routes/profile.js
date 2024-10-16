@@ -38,4 +38,6 @@ profileRouter.patch("/profile/edit", userAuth, async(req,res) => {
     }
 });
 
+//Write an API to edit password for the user
+
 module.exports = profileRouter;
