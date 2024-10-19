@@ -11,7 +11,7 @@ const userAuth = async (req, res, next) => {
         const {token} = cookies;
 
         if(!token){
-            throw new Error("Invalid token");
+            return res.status(401).send("Unauthorized access. Please Login!!");
         }
 
         //Validating the token, //Here the second parameter is the secret key used to create the token
