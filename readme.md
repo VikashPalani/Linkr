@@ -1,5 +1,5 @@
  - Create a repository
- - Initialize the repository
+ - Initialize the repository (npm init)
  - node_modules, package.json, package-lock.json
  - Install express 
  - Create a server
